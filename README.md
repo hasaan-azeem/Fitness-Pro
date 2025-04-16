@@ -3,7 +3,7 @@
 Welcome to **Fitness Pro** – your ultimate fitness companion built with 💙 **Flutter**! Whether you're a beginner or a pro, Fitness Pro helps you track workouts, set goals, and stay motivated with a sleek, intuitive design.
 
 <p align="center">
-  <img src="assets/fitness_logo.webp" width="300" style="border-radius: 12px;" alt="Fitness Logo" />
+  <img src="assets/fitness_logo.webp" width="300" style="border-radius: 50px;" alt="Fitness Logo" />
 </p>
 
 
