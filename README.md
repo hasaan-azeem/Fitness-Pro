@@ -1,21 +1,110 @@
-<<<<<<< HEAD
-# fitness_pro
+# 💪 Fitness Pro App
 
-A new Flutter project.
+Welcome to **Fitness Pro** – your ultimate fitness companion built with 💙 **Flutter**! Whether you're a beginner or a pro, Fitness Pro helps you track workouts, set goals, and stay motivated with a sleek, intuitive design.
 
-## Getting Started
+<p align="center">
+  <img src="assets/fitness_logo.webp" width="300" style="border-radius: 12px;" alt="Fitness Logo" />
+</p>
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
-# Fitness-Pro
-A simple and clean fitness app built with Flutter. It helps users stay on track with their workouts, track progress, calculate BMI, and explore fitness plans — all in one place. Designed to be beginner-friendly and visually motivating.
->>>>>>> 9f265ff7532f883788925e38e7f9f2581c60b34c
+## 🚀 Features
+
+✨ **Beautiful UI**  
+Modern and responsive design with smooth animations and eye-catching components.
+
+🧘 **Workout Categories**  
+Full body, cardio, yoga, strength, and more – all organized for easy access.
+
+📅 **Daily Workout Planner**  
+Schedule your sessions and stay consistent with built-in reminders.
+
+📈 **Progress Tracker**  
+Monitor your daily and weekly progress visually with stats and charts.
+
+🌙 **Dark Mode Support**  
+Enjoy the experience in both light and dark themes for comfort and style.
+
+🔔 **Notifications**  
+Stay on track with timely workout reminders.
+
+---
+
+## 📱 Screenshots
+
+<table>
+  <tr>
+    <th>Home</th>
+    <th>Fitness</th>
+    <th>Team</th>
+    <th>Profile</th>
+  </tr>
+  <tr>
+    <td><img src="assets/screenshorts/Home.png" alt="Home Screen" width="200"/></td>
+    <td><img src="assets/screenshorts/Fitness.png" alt="Workouts Screen" width="200"/></td>
+    <td><img src="assets/screenshorts/Team.png" alt="Progress Screen" width="200"/></td>
+    <td><img src="assets/screenshorts/Profile.png" alt="Progress Screen" width="200"/></td>
+  </tr>
+</table>
+
+
+---
+
+## 🛠️ Tech Stack
+
+- **Flutter** – Cross-platform app development
+- **Dart** – For smooth, fast logic handling
+- **Provider / Bloc** – State management
+- **Hive / Shared Preferences** – Local data storage
+- **Firebase** *(optional)* – Cloud sync, auth, and analytics
+
+---
+
+## 📦 Installation
+
+1. **Clone the repo**
+   ```bash
+   git clone https://github.com/hasaan-azeem/fitness-pro-app.git
+
+2. **Navigate into the project directory**
+   ```bash
+   cd fitness-pro-app
+
+3. **Get the dependencies**
+   ```bash
+   flutter pub get
+
+4. **Run the app**
+   ```bash
+   flutter run
+
+## 🤝 Contributing
+
+Contributions are welcome!  
+Feel free to **fork** this repo, **improve it**, and make a **pull request**.  
+Whether it's a bug fix, feature, or documentation – all kinds of help is appreciated. 🙌
+
+---
+
+## 📄 License
+
+This project is licensed free – feel free to use and modify it.
+
+---
+
+## 🙌 Credits
+
+Created with ❤️ by **Hasaan Azeem**  
+Special thanks to the amazing **Flutter** community for resources and inspiration.
+
+---
+
+## 📬 Let's Connect
+  
+- 💼 **LinkedIn:** [Hasaan Azeem](https://www.linkedin.com/in/hasaan-azeem)  
+
+---
+
+> _"Fitness is not about being better than someone else… it’s about being better than you used to be."_ 💪
