@@ -125,7 +125,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           // Skip button on the top right corner
           Positioned(
-            top: 40,
+            top: 60,
             right: 20,
             child: TextButton(
               onPressed: skipOnboarding, // Navigate to SignUpScreen

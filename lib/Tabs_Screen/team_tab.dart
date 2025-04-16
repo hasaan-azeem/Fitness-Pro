@@ -14,23 +14,50 @@ class TeamTab extends StatefulWidget {
 class _TeamTabState extends State<TeamTab> {
   final List<Map<String, dynamic>> teammates = [
     {
-      'name': 'Alice',
+      'name': 'Akram',
       'status': '💪 Crushing it!',
-      'avatar': 'https://i.pravatar.cc/150?img=1',
+      'avatar':
+          'https://png.pngtree.com/png-vector/20230831/ourmid/pngtree-man-avatar-image-for-profile-png-image_9197908.png',
       'online': true,
       'progress': 0.8,
     },
     {
-      'name': 'Bob',
+      'name': 'Basit',
       'status': '😴 Rest Day',
-      'avatar': 'https://i.pravatar.cc/150?img=2',
+      'avatar':
+          'https://static.vecteezy.com/system/resources/thumbnails/024/183/502/small/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg',
       'online': false,
       'progress': 0.3,
     },
     {
-      'name': 'Charlie',
+      'name': 'Alina',
       'status': '✅ Workout Complete',
-      'avatar': 'https://i.pravatar.cc/150?img=3',
+      'avatar':
+          'https://png.pngtree.com/png-vector/20190130/ourmid/pngtree-cute-girl-avatar-material-png-image_678035.jpg',
+      'online': true,
+      'progress': 1.0,
+    },
+    {
+      'name': 'Nimra',
+      'status': '✅ Workout Complete',
+      'avatar':
+          'https://png.pngtree.com/png-clipart/20190124/ourmid/pngtree-hand-painted-cartoon-beauty-avatar-png-image_550632.jpg',
+      'online': true,
+      'progress': 1.0,
+    },
+    {
+      'name': 'Kashif',
+      'status': '✅ Workout Complete',
+      'avatar':
+          'https://previews.123rf.com/images/metelsky/metelsky1904/metelsky190400021/121859823-male-avatar-icon-or-portrait-handsome-young-man-face-with-beard-vector-illustration.jpg',
+      'online': true,
+      'progress': 1.0,
+    },
+    {
+      'name': 'Ahmer',
+      'status': '✅ Workout Complete',
+      'avatar':
+          'https://imgcdn.stablediffusionweb.com/2024/3/24/17ee935b-c63a-4374-8fc3-91b2559e02f2.jpg',
       'online': true,
       'progress': 1.0,
     },

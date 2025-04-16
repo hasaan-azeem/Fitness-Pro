@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
@@ -73,8 +75,8 @@ class _FitnessTabState extends State<FitnessTab> {
         gradient: LinearGradient(
           colors:
               isDark
-                  ? [Colors.blue.shade400, Colors.blue.shade700]
-                  : [Colors.blue.shade100, Colors.blue.shade200],
+                  ? [Colors.blue.shade800, Colors.indigo.shade900]
+                  : [Colors.blue.shade300, Colors.indigo.shade400],
         ),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -185,7 +187,7 @@ class _FitnessTabState extends State<FitnessTab> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(item['icon'] as IconData, color: Colors.deepPurple),
+                  Icon(item['icon'] as IconData, color: Colors.blue, size: 30),
                   const SizedBox(width: 8),
                   Text(
                     item['label'] as String,
