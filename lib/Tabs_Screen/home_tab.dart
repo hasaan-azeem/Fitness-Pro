@@ -173,9 +173,13 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.orange.shade100,
+                border: Border.all(color: Colors.orange.shade300),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(getTodayTip(), style: const TextStyle(fontSize: 16)),
+              child: Text(
+                getTodayTip(),
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+              ),
             ),
             const SizedBox(height: 30),
 

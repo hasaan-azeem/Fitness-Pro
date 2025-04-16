@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, deprecated_member_use
 
 import 'dart:io';
 import 'package:my_fitness_pro/Authentication/login_screen.dart';
@@ -11,7 +11,6 @@ class MyPageTab extends StatefulWidget {
   const MyPageTab({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _MyPageTabState createState() => _MyPageTabState();
 }
 
@@ -19,12 +18,12 @@ class _MyPageTabState extends State<MyPageTab> {
   final user = FirebaseAuth.instance.currentUser;
   File? _profileImage;
 
-  // Logout logic
   void _logout(BuildContext context) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder:
           (_) => AlertDialog(
+            backgroundColor: Theme.of(context).dialogBackgroundColor,
             title: const Text("Confirm Logout"),
             content: const Text("Are you sure you want to log out?"),
             actions: [
@@ -50,7 +49,6 @@ class _MyPageTabState extends State<MyPageTab> {
     }
   }
 
-  // Image Picker with Permission Handling
   Future<void> pickImage() async {
     var status = await Permission.photos.request();
     if (status.isGranted) {
@@ -70,8 +68,11 @@ class _MyPageTabState extends State<MyPageTab> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0),
         child: AppBar(elevation: 0, backgroundColor: Colors.transparent),
@@ -81,12 +82,15 @@ class _MyPageTabState extends State<MyPageTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               "My Profile",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
             ),
             const SizedBox(height: 20),
-            // Profile picture
             Center(
               child: GestureDetector(
                 onTap: pickImage,
@@ -97,16 +101,16 @@ class _MyPageTabState extends State<MyPageTab> {
                           ? FileImage(_profileImage!)
                           : NetworkImage(
                                 user?.photoURL ??
-                                    'https://www.example.com/default_profile.png',
+                                    'https://www.facebook.com/photo?fbid=997450045650315&set=a.101566011905394',
                               )
                               as ImageProvider,
-                  backgroundColor: Colors.grey[300],
+                  backgroundColor: isDark ? Colors.grey[700] : Colors.grey[300],
                   child:
                       _profileImage == null
-                          ? const Icon(
+                          ? Icon(
                             Icons.camera_alt,
                             size: 50,
-                            color: Colors.white,
+                            color: isDark ? Colors.white70 : Colors.white,
                           )
                           : null,
                 ),
@@ -118,14 +122,17 @@ class _MyPageTabState extends State<MyPageTab> {
                 children: [
                   Text(
                     user?.displayName ?? 'User Name',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
+                      color: textColor,
                     ),
                   ),
                   Text(
                     user?.email ?? 'Email',
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
                   ),
                 ],
               ),
@@ -141,18 +148,28 @@ class _MyPageTabState extends State<MyPageTab> {
               ),
             ),
             const SizedBox(height: 30),
-            const Divider(),
-            // Settings List
+            Divider(color: isDark ? Colors.grey[700] : Colors.grey[300]),
             ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text("Account Settings"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              leading: Icon(Icons.settings, color: textColor),
+              title: Text(
+                "Account Settings",
+                style: TextStyle(color: textColor),
+              ),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: textColor,
+              ),
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(Icons.support_agent),
-              title: const Text("Help & Support"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              leading: Icon(Icons.support_agent, color: textColor),
+              title: Text("Help & Support", style: TextStyle(color: textColor)),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: textColor,
+              ),
               onTap: () {},
             ),
             ListTile(

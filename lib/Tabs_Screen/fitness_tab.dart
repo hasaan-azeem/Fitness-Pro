@@ -1,16 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-class FitnessTab extends StatelessWidget {
+class FitnessTab extends StatefulWidget {
   const FitnessTab({super.key});
 
   @override
+  State<FitnessTab> createState() => _FitnessTabState();
+}
+
+class _FitnessTabState extends State<FitnessTab> {
+  String greeting = '';
+
+  @override
+  void initState() {
+    super.initState();
+    setGreeting();
+  }
+
+  void setGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      greeting = "Good morning";
+    } else if (hour < 17) {
+      greeting = "Good afternoon";
+    } else {
+      greeting = "Good evening";
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final _ = DateTime.now();
-    const greeting = "Your Fitness Journey";
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0),
         child: AppBar(elevation: 0, backgroundColor: Colors.transparent),
@@ -20,28 +44,21 @@ class FitnessTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              greeting,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              "$greeting 👋",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
             ),
             const SizedBox(height: 12),
-
-            // Today’s Workout Plan
-            _todayWorkoutPlan(),
-
+            _todayWorkoutPlan(isDark),
             const SizedBox(height: 24),
-
-            // Progress Summary
             _weeklyProgress(),
-
             const SizedBox(height: 24),
-
-            // Workout Categories
             _workoutCategories(),
-
             const SizedBox(height: 24),
-
-            // Motivational Tip
             _motivationCard(),
           ],
         ),
@@ -49,53 +66,49 @@ class FitnessTab extends StatelessWidget {
     );
   }
 
-  Widget _todayWorkoutPlan() {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Today's Plan",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Row(
+  Widget _todayWorkoutPlan(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors:
+              isDark
+                  ? [Colors.blue.shade400, Colors.blue.shade700]
+                  : [Colors.blue.shade100, Colors.blue.shade200],
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.accessibility_new, size: 40, color: Colors.white),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.accessibility_new_rounded,
-                  size: 40,
-                  color: Colors.deepPurple,
+                Text(
+                  "Full Body Workout",
+                  style: TextStyle(color: Colors.white),
                 ),
-                const SizedBox(width: 12),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Full Body Workout"),
-                    Text(
-                      "45 mins • Intense",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text("Start"),
+                Text(
+                  "45 mins • Intense",
+                  style: TextStyle(color: Colors.white70),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text("Start"),
+          ),
+        ],
       ),
     );
   }
@@ -129,7 +142,7 @@ class FitnessTab extends StatelessWidget {
           lineHeight: 10,
           percent: percent,
           progressColor: color,
-          backgroundColor: Colors.grey[300],
+          backgroundColor: Colors.grey.shade300,
           barRadius: const Radius.circular(8),
         ),
       ],
@@ -166,7 +179,7 @@ class FitnessTab extends StatelessWidget {
             final item = categories[index];
             return Container(
               decoration: BoxDecoration(
-                color: Colors.deepPurple.shade50,
+                color: Colors.blue.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -201,7 +214,10 @@ class FitnessTab extends StatelessWidget {
             Expanded(
               child: Text(
                 '"Push yourself, because no one else is going to do it for you."',
-                style: TextStyle(fontStyle: FontStyle.italic),
+                style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
               ),
             ),
           ],

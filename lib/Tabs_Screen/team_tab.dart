@@ -40,6 +40,18 @@ class _TeamTabState extends State<TeamTab> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor =
+        isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FB);
+    final cardGradient =
+        isDark
+            ? [Colors.grey.withOpacity(0.3), Colors.black.withOpacity(0.1)]
+            : [Colors.white.withOpacity(0.6), Colors.white.withOpacity(0.2)];
+    final shadowColor = isDark ? Colors.black26 : Colors.grey.shade300;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subtitleColor = isDark ? Colors.grey[400] : Colors.grey[600];
+    final progressBackground = isDark ? Colors.grey[800] : Colors.grey[300];
+
     final filteredTeam =
         teammates
             .where(
@@ -50,16 +62,16 @@ class _TeamTabState extends State<TeamTab> {
             .toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "My Team",
           style: TextStyle(
-            color: Colors.black87,
+            color: textColor,
             fontSize: 26,
             fontWeight: FontWeight.w700,
           ),
@@ -71,16 +83,23 @@ class _TeamTabState extends State<TeamTab> {
             padding: const EdgeInsets.all(16),
             child: TextField(
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
                 hintText: 'Search teammates...',
+                hintStyle: TextStyle(
+                  color: isDark ? Colors.white54 : Colors.black45,
+                ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: isDark ? Colors.grey[900] : Colors.white,
                 contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
               ),
+              style: TextStyle(color: textColor),
               onChanged: (value) => setState(() => searchQuery = value),
             ),
           ),
@@ -95,16 +114,13 @@ class _TeamTabState extends State<TeamTab> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     gradient: LinearGradient(
-                      colors: [
-                        Colors.white.withOpacity(0.6),
-                        Colors.white.withOpacity(0.2),
-                      ],
+                      colors: cardGradient,
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.shade300,
+                        color: shadowColor,
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -148,9 +164,10 @@ class _TeamTabState extends State<TeamTab> {
                         ),
                         title: Text(
                           member['name'],
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 18,
+                            color: textColor,
                           ),
                         ),
                         subtitle: Column(
@@ -158,12 +175,12 @@ class _TeamTabState extends State<TeamTab> {
                           children: [
                             Text(
                               member['status'],
-                              style: TextStyle(color: Colors.grey[600]),
+                              style: TextStyle(color: subtitleColor),
                             ),
                             const SizedBox(height: 4),
                             LinearProgressIndicator(
                               value: member['progress'],
-                              backgroundColor: Colors.grey[300],
+                              backgroundColor: progressBackground,
                               color: Colors.greenAccent.shade400,
                               minHeight: 6,
                               borderRadius: BorderRadius.circular(12),
@@ -180,9 +197,10 @@ class _TeamTabState extends State<TeamTab> {
                             ),
                           );
                         },
-                        trailing: const Icon(
+                        trailing: Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 18,
+                          color: isDark ? Colors.white54 : Colors.black45,
                         ),
                       ),
                     ),
@@ -201,7 +219,6 @@ class _TeamTabState extends State<TeamTab> {
 class ExpandableFab extends StatelessWidget {
   const ExpandableFab({super.key});
 
-  // Function to share link to WhatsApp
   Future<void> _shareLinkToWhatsApp() async {
     const String whatsappUrl =
         'https://wa.me/?text=Check%20out%20this%20fitness%20app!';
@@ -214,18 +231,19 @@ class ExpandableFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelColor =
+        isDark ? Colors.white : const Color.fromARGB(255, 36, 36, 36);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         FloatingActionButton.extended(
           heroTag: "invite",
-          onPressed: _shareLinkToWhatsApp, // Share via WhatsApp
+          onPressed: _shareLinkToWhatsApp,
           icon: const Icon(Icons.person_add),
-          label: const Text(
-            "Invite",
-            style: TextStyle(color: Color.fromARGB(255, 36, 36, 36)),
-          ),
+          label: Text("Invite", style: TextStyle(color: labelColor)),
           backgroundColor: const Color.fromARGB(255, 144, 103, 255),
         ),
         const SizedBox(height: 12),
@@ -235,10 +253,7 @@ class ExpandableFab extends StatelessWidget {
             // Create Group logic
           },
           icon: const Icon(Icons.group),
-          label: const Text(
-            "Create Group",
-            style: TextStyle(color: Color.fromARGB(255, 36, 36, 36)),
-          ),
+          label: Text("Create Group", style: TextStyle(color: labelColor)),
           backgroundColor: Colors.lightBlue,
         ),
       ],
@@ -252,12 +267,19 @@ class TeammateDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: AppBar(title: Text(name)),
+      appBar: AppBar(
+        title: Text(name),
+        backgroundColor: isDark ? Colors.black : null,
+      ),
       body: Center(
         child: Text(
           "$name's fitness profile coming soon!",
-          style: const TextStyle(fontSize: 18),
+          style: TextStyle(
+            fontSize: 18,
+            color: isDark ? Colors.white : Colors.black,
+          ),
         ),
       ),
     );
