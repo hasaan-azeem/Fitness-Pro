@@ -5,9 +5,6 @@ import 'package:my_fitness_pro/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -25,55 +22,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
   bool isLoading = false;
-
-  Future<void> signInWithGoogle() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) {
-        setState(() => isLoading = false);
-        return; // User cancelled the sign-in
-      }
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithCredential(credential);
-
-      final User? user = userCredential.user;
-
-      if (user != null) {
-        // Optionally save to Firestore
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-          'name': user.displayName,
-          'email': user.email,
-          'createdAt': Timestamp.now(),
-        });
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Google Sign-In failed: $e")));
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 
   Future<void> signUp() async {
     setState(() {
