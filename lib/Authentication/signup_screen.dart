@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use
-
-import 'package:my_fitness_pro/Authentication/LoginOptionsScreen.dart';
+import 'package:my_fitness_pro/Authentication/login_screen.dart';
 import 'package:my_fitness_pro/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -237,7 +236,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const Loginoptionsscreen(),
+                            builder: (context) => const LoginScreen(),
                           ),
                         );
                       },
