@@ -1,12 +1,12 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'dart:io'; // For exit(0)
 import '../Tabs_Screen/fitness_tab.dart';
 import '../Tabs_Screen/team_tab.dart';
 import '../Tabs_Screen/home_tab.dart';
 import '../Tabs_Screen/my_page_tab.dart';
 
-// Placeholder for Home/Dashboard tab
 class DashboardTab extends StatelessWidget {
   const DashboardTab({super.key});
 
@@ -46,22 +46,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _widgetOptions.elementAt(_selectedIndex),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center),
-            label: 'Fitness',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Team'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Page'),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
+    return WillPopScope(
+      onWillPop: () async {
+        // Exit the app when the back button is pressed
+        exit(0);
+      },
+      child: Scaffold(
+        body: _widgetOptions.elementAt(_selectedIndex),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.fitness_center),
+              label: 'Fitness',
+            ),
+            BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Team'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Page'),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }

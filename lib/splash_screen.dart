@@ -1,6 +1,8 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:my_fitness_pro/home_screen.dart';
 import 'dart:async';
 import 'onboarding_screen.dart';
 
@@ -29,10 +31,20 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-      );
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // User is already logged in
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        // Not logged in, go to onboarding/login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+        );
+      }
     });
   }
 

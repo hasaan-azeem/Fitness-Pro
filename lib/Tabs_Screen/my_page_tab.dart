@@ -1,8 +1,8 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, library_private_types_in_public_api, unused_field
 
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_fitness_pro/Authentication/login_screen.dart';
@@ -19,7 +19,7 @@ class MyPageTab extends StatefulWidget {
 }
 
 class _MyPageTabState extends State<MyPageTab> {
-  final user = FirebaseAuth.instance.currentUser;
+  User? user = FirebaseAuth.instance.currentUser;
   File? _profileImage;
   String _appVersion = '1.000 (1)';
   final String _appName = 'My Fitness Pro';
@@ -73,10 +73,32 @@ class _MyPageTabState extends State<MyPageTab> {
     if (status.isGranted) {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
       if (pickedFile != null) {
+        File imageFile = File(pickedFile.path);
+
+        // Upload to Firebase Storage
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('profile_images')
+            .child('${user!.uid}.jpg');
+
+        await storageRef.putFile(imageFile);
+
+        final downloadUrl = await storageRef.getDownloadURL();
+
+        // Update Firebase Auth profile
+        await user!.updatePhotoURL(downloadUrl);
+        await user!.reload();
+        user = FirebaseAuth.instance.currentUser;
+
         setState(() {
-          _profileImage = File(pickedFile.path);
+          _profileImage = imageFile;
         });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Profile image updated successfully")),
+        );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,14 +140,13 @@ class _MyPageTabState extends State<MyPageTab> {
                 backgroundImage:
                     _profileImage != null
                         ? FileImage(_profileImage!)
-                        : NetworkImage(
-                              user?.photoURL ??
-                                  'https://www.facebook.com/photo?fbid=997450045650315&set=a.101566011905394',
-                            )
+                        : (user?.photoURL != null
+                                ? NetworkImage(user!.photoURL!)
+                                : const AssetImage("assets/default_avatar.png"))
                             as ImageProvider,
                 backgroundColor: isDark ? Colors.grey[700] : Colors.grey[300],
                 child:
-                    _profileImage == null
+                    _profileImage == null && user?.photoURL == null
                         ? Icon(
                           Icons.camera_alt,
                           size: 50,
@@ -160,7 +181,6 @@ class _MyPageTabState extends State<MyPageTab> {
             const SizedBox(height: 30),
             Divider(color: isDark ? Colors.grey[700] : Colors.grey[300]),
 
-            // --- Fitness Overview ---
             const ListTile(
               leading: Icon(Icons.local_fire_department),
               title: Text("Calories Burned This Week"),
@@ -177,7 +197,6 @@ class _MyPageTabState extends State<MyPageTab> {
               trailing: Text("4 Days"),
             ),
 
-            // --- Goals ---
             Divider(color: isDark ? Colors.grey[700] : Colors.grey[300]),
             ListTile(
               leading: const Icon(Icons.flag),
@@ -186,8 +205,6 @@ class _MyPageTabState extends State<MyPageTab> {
               trailing: const Icon(Icons.edit),
               onTap: () {},
             ),
-
-            // --- Mood Tracker ---
             ListTile(
               leading: const Icon(Icons.mood),
               title: const Text("Today's Mood"),
@@ -195,8 +212,6 @@ class _MyPageTabState extends State<MyPageTab> {
               trailing: const Icon(Icons.edit),
               onTap: () {},
             ),
-
-            // --- Achievements ---
             ListTile(
               leading: const Icon(Icons.emoji_events),
               title: const Text("Achievements"),
@@ -204,7 +219,6 @@ class _MyPageTabState extends State<MyPageTab> {
               onTap: () {},
             ),
 
-            // --- Dark Mode Toggle ---
             SwitchListTile(
               title: const Text("Dark Mode"),
               value: isDark,
@@ -213,7 +227,6 @@ class _MyPageTabState extends State<MyPageTab> {
               },
             ),
 
-            // --- Settings ---
             Divider(color: isDark ? Colors.grey[700] : Colors.grey[300]),
             ListTile(
               leading: Icon(Icons.settings, color: textColor),
@@ -244,7 +257,6 @@ class _MyPageTabState extends State<MyPageTab> {
               onTap: () => _logout(context),
             ),
 
-            // --- App Version ---
             Padding(
               padding: const EdgeInsets.only(top: 30.0),
               child: Text(
