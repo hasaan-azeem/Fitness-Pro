@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import '../Authentication/login_screen.dart';
 import '../Authentication/signup_screen.dart';

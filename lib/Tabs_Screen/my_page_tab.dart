@@ -1,15 +1,10 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, library_private_types_in_public_api, unused_field
 
-import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:my_fitness_pro/Authentication/login_screen.dart';
 import 'package:my_fitness_pro/theme_provider.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class MyPageTab extends StatefulWidget {
   const MyPageTab({super.key});
@@ -19,25 +14,15 @@ class MyPageTab extends StatefulWidget {
 }
 
 class _MyPageTabState extends State<MyPageTab> {
-  User? user = FirebaseAuth.instance.currentUser;
-  File? _profileImage;
-  String _appVersion = '1.000 (1)';
-  final String _appName = 'My Fitness Pro';
+  User? user;
 
   @override
   void initState() {
     super.initState();
-    _loadVersion();
+    user = FirebaseAuth.instance.currentUser;
   }
 
-  Future<void> _loadVersion() async {
-    final info = await PackageInfo.fromPlatform();
-    setState(() {
-      _appVersion = "${info.version} (${info.buildNumber})";
-    });
-  }
-
-  void _logout(BuildContext context) async {
+  Future<void> _logout(BuildContext context) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder:
@@ -68,45 +53,6 @@ class _MyPageTabState extends State<MyPageTab> {
     }
   }
 
-  Future<void> pickImage() async {
-    var status = await Permission.photos.request();
-    if (status.isGranted) {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-      if (pickedFile != null) {
-        File imageFile = File(pickedFile.path);
-
-        // Upload to Firebase Storage
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('profile_images')
-            .child('${user!.uid}.jpg');
-
-        await storageRef.putFile(imageFile);
-
-        final downloadUrl = await storageRef.getDownloadURL();
-
-        // Update Firebase Auth profile
-        await user!.updatePhotoURL(downloadUrl);
-        await user!.reload();
-        user = FirebaseAuth.instance.currentUser;
-
-        setState(() {
-          _profileImage = imageFile;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Profile image updated successfully")),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please grant photo permission")),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -132,30 +78,7 @@ class _MyPageTabState extends State<MyPageTab> {
                 color: textColor,
               ),
             ),
-            const SizedBox(height: 20),
-            GestureDetector(
-              onTap: pickImage,
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage:
-                    _profileImage != null
-                        ? FileImage(_profileImage!)
-                        : (user?.photoURL != null
-                                ? NetworkImage(user!.photoURL!)
-                                : const AssetImage("assets/default_avatar.png"))
-                            as ImageProvider,
-                backgroundColor: isDark ? Colors.grey[700] : Colors.grey[300],
-                child:
-                    _profileImage == null && user?.photoURL == null
-                        ? Icon(
-                          Icons.camera_alt,
-                          size: 50,
-                          color: isDark ? Colors.white70 : Colors.white,
-                        )
-                        : null,
-              ),
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 50),
             Text(
               user?.displayName ?? 'User Name',
               style: TextStyle(
@@ -255,14 +178,6 @@ class _MyPageTabState extends State<MyPageTab> {
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text("Logout", style: TextStyle(color: Colors.red)),
               onTap: () => _logout(context),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(top: 30.0),
-              child: Text(
-                "App Version: $_appVersion",
-                style: TextStyle(color: Colors.grey[500], fontSize: 12),
-              ),
             ),
           ],
         ),
