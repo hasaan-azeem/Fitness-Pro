@@ -12,7 +12,20 @@
           "package_name": "com.example.fitness_pro"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "660974095967-tc0t5gfm31o0gv7n48nes3c23its3guj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fitness_pro",
+            "certificate_hash": "ed18f7bee198839dc1b2fca330c4ae5243ad6cd3"
+          }
+        },
+        {
+          "client_id": "660974095967-lui0vmjlvn8ir6ghkc1ua78c01sgnm8r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBETjOifTVakfctk9xxKJGC6bzdhFJBxVQ"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "660974095967-lui0vmjlvn8ir6ghkc1ua78c01sgnm8r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "660974095967-v3b3biekvvo7fffj8n2m1duk0ops1atr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fitnessPro"
+              }
+            }
+          ]
         }
       }
     }
