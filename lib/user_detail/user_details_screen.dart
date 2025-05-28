@@ -34,7 +34,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       final userData = {
         'firstName': _firstNameController.text.trim(),
         'lastName': _lastNameController.text.trim(),
-        'username': _lastNameController.text.trim(),
+        'username': _usernameController.text.trim(),
         'age': int.parse(_ageController.text),
         'bloodGroup': _bloodGroupController.text.trim(),
         'weight': double.parse(_weightController.text),
@@ -89,7 +89,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
           Positioned.fill(
             child: Container(color: Colors.black.withOpacity(0.775)),
           ),
-          
+
           // Scrollable form content
           SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -223,9 +223,21 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       controller: controller,
       style: const TextStyle(color: Colors.white),
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      validator:
-          (val) =>
-              val == null || val.trim().isEmpty ? "$label is required" : null,
+      validator: (val) {
+        if (val == null || val.trim().isEmpty) return "$label is required";
+        if (isNumber) {
+          final number = num.tryParse(val);
+          if (number == null) return "$label must be a valid number";
+          if (label == "Age" && (number <= 0 || number > 120)) {
+            return "Enter a valid age";
+          }
+          if ((label == "Weight (kg)" || label == "Height (cm)") && number <= 0) {
+            return "Enter a positive number";
+          }
+        }
+        return null;
+      },
+
       decoration: _inputDecoration(label, icon),
     );
   }
@@ -257,6 +269,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
+    _usernameController.dispose();
     _ageController.dispose();
     _bloodGroupController.dispose();
     _weightController.dispose();
