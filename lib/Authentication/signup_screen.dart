@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_fitness_pro/Authentication/login_screen.dart';
 import 'package:my_fitness_pro/home_screen.dart';
+import 'package:my_fitness_pro/user_detail/user_details_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -86,49 +87,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> signUpWithGoogle(BuildContext context) async {
-    setState(() => isLoading = true);
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) {
-        // User canceled the sign-in
-        setState(() => isLoading = false);
-        return;
-      }
+  setState(() => isLoading = true);
+  try {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    await googleSignIn.signOut(); // <- Force re-prompt
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      setState(() => isLoading = false);
+      return; // User canceled
+    }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      // Check if user already exists
-      final List<String> signInMethods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(googleUser.email);
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
 
-      if (signInMethods.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("User already exists, please login instead.")),
-        );
-        setState(() => isLoading = false);
-        return;
-      }
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+    if (userCredential.additionalUserInfo?.isNewUser == true) {
+      // Save to Firestore if new
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'uid': userCredential.user!.uid,
+        'name': userCredential.user!.displayName,
+        'email': userCredential.user!.email,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
 
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-
-      if (userCredential.additionalUserInfo?.isNewUser == true) {
-      // New user signed up - proceed to HomeScreen or onboarding
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const UserDetailsScreen()),
       );
     } else {
-      // Existing user tried to sign up - show message and navigate to login
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User already exists, please login instead.")),
-      );
+      // Existing user
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User already exists, please login.")),
       );
     }
   } catch (e) {
@@ -139,6 +137,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() => isLoading = false);
   }
 }
+
 
   @override
   void dispose() {

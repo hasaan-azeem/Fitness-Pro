@@ -84,7 +84,7 @@ flutter:
     - assets/onboarding_final.png
     - assets/background.jpg
     - assets/login_bg.jpg
-    - assets/signup_bg.jpg
+    - assets/form.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
