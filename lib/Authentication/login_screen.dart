@@ -1,8 +1,9 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';  // Firestore import
 import 'package:my_fitness_pro/Authentication/signup_screen.dart';
+import 'package:my_fitness_pro/user_detail/user_details_screen.dart';
 import '../home_screen.dart'; // Import the HomeScreen
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -57,57 +58,64 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // Google Login
-  Future<void> loginWithGoogle(BuildContext context) async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      await GoogleSignIn().signOut(); // Force account picker every time
+ Future<void> loginWithGoogle(BuildContext context) async {
+  setState(() => isLoading = true);
 
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return; // User canceled
+  try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    if (googleUser == null) {
+      print("Google Sign-In cancelled.");
+      return;
+    }
 
-      final List<String> signInMethods = await FirebaseAuth.instance
-          .fetchSignInMethodsForEmail(googleUser.email);
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
 
-      if (signInMethods.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("No account found. Please sign up first."),
-          ),
-        );
-        await GoogleSignIn().signOut();
-        return;
-      }
+    final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+    if (userCredential.additionalUserInfo?.isNewUser == true) {
+      print("✅ New user signed in with Google");
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      // Save user to Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user?.uid)
+          .set({
+        'name': userCredential.user?.displayName,
+        'email': userCredential.user?.email,
+        'photoURL': userCredential.user?.photoURL,
+        'createdAt': Timestamp.now(),
+      });
+
+      // Navigate to User Details Screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const UserDetailsScreen()),
       );
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
+    } else {
+      print("👋 Existing user signed in with Google");
 
+      // Navigate to Home Screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login failed: ${e.message}")),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login failed: ${e.toString()}")),
-      );
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
     }
+
+  } catch (e) {
+    print("Google Sign-In Error: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Login failed: ${e.toString()}")),
+    );
+  } finally {
+    setState(() => isLoading = false);
   }
+}
+
 
   // Google Signup with Firestore user save
   Future<void> signUpWithGoogle(BuildContext context) async {

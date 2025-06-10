@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,36 +25,45 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   bool _isLoading = false;
 
   Future<void> _submitProfile() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
-    final user = FirebaseAuth.instance.currentUser;
+  setState(() => _isLoading = true);
+  final user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
-      final userData = {
-        'firstName': _firstNameController.text.trim(),
-        'lastName': _lastNameController.text.trim(),
-        'username': _usernameController.text.trim(),
-        'age': int.parse(_ageController.text),
-        'bloodGroup': _bloodGroupController.text.trim(),
-        'weight': double.parse(_weightController.text),
-        'height': double.parse(_heightController.text),
-        'gender': _gender,
-        'email': user.email,
-        'uid': user.uid,
-        'createdAt': FieldValue.serverTimestamp(),
-      };
+  if (user != null) {
+    final userData = {
+      'firstName': _firstNameController.text.trim(),
+      'lastName': _lastNameController.text.trim(),
+      'username': _usernameController.text.trim(),
+      'age': int.parse(_ageController.text),
+      'bloodGroup': _bloodGroupController.text.trim(),
+      'weight': double.parse(_weightController.text),
+      'height': double.parse(_heightController.text),
+      'gender': _gender,
+      'email': user.email,
+      'uid': user.uid,
+      'createdAt': FieldValue.serverTimestamp(),
+    };
 
+    try {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
-          .set(userData);
-
-      if (mounted) Navigator.pushReplacementNamed(context, '/home');
+          .set(userData, SetOptions(merge: true)); // ✅ this line ensures merging
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      print("Error saving user data: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to save user details")),
+      );
     }
-
-    setState(() => _isLoading = false);
   }
+
+  setState(() => _isLoading = false);
+}
+
 
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(

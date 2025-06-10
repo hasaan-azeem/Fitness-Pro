@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, library_private_types_in_public_api, unused_import
 
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -27,116 +29,118 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool isLoading = false;
 
   Future<void> signUp() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => isLoading = true);
-
-    try {
-      if (passwordController.text != confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Passwords do not match")),
-        );
-        setState(() => isLoading = false);
-        return;
-      }
-
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-
-      User? user = userCredential.user;
-      if (user != null) {
-        await user.updateDisplayName(nameController.text.trim());
-        await user.reload();
-
-        // Save user data in Firestore
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-          'uid': user.uid,
-          'name': nameController.text.trim(),
-          'email': user.email,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } on FirebaseAuthException catch (e) {
-      String message;
-      switch (e.code) {
-        case 'email-already-in-use':
-          message = 'Email already in use';
-          break;
-        case 'weak-password':
-          message = 'Password should be at least 6 characters';
-          break;
-        case 'invalid-email':
-          message = 'Invalid email address';
-          break;
-        default:
-          message = 'Signup failed: ${e.message}';
-      }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> signUpWithGoogle(BuildContext context) async {
   setState(() => isLoading = true);
+
   try {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    await googleSignIn.signOut(); // <- Force re-prompt
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
+    final email = emailController.text.trim();
+    final signInMethods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+
+    if (signInMethods.isNotEmpty) {
+      String method = signInMethods.contains('google.com') ? 'Google' : 'another';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("This email is already registered using $method Sign-In.")),
+      );
       setState(() => isLoading = false);
-      return; // User canceled
+      return;
     }
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Passwords do not match")),
+      );
+      setState(() => isLoading = false);
+      return;
+    }
+
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: passwordController.text.trim(),
+    );
+
+    User? user = userCredential.user;
+    if (user != null) {
+      await user.updateDisplayName(nameController.text.trim());
+      await user.reload();
+
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'uid': user.uid,
+        'name': nameController.text.trim(),
+        'email': user.email,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
+  } on FirebaseAuthException catch (e) {
+    String message;
+    switch (e.code) {
+      case 'email-already-in-use':
+        message = 'Email already in use';
+        break;
+      case 'weak-password':
+        message = 'Password should be at least 6 characters';
+        break;
+      case 'invalid-email':
+        message = 'Invalid email address';
+        break;
+      default:
+        message = 'Signup failed: ${e.message}';
+    }
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
+  } finally {
+    setState(() => isLoading = false);
+  }
+}
+
+Future<void> signUpWithGoogle(BuildContext context) async {
+  try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    if (googleAuth == null) {
+      return;
+    }
 
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
 
-    UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+    final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+    final uid = userCredential.user!.uid;
 
-    if (userCredential.additionalUserInfo?.isNewUser == true) {
-      // Save to Firestore if new
-      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-        'uid': userCredential.user!.uid,
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+    if (!userDoc.exists) {
+      // New user — create Firestore document
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'uid': uid,
         'name': userCredential.user!.displayName,
         'email': userCredential.user!.email,
         'createdAt': FieldValue.serverTimestamp(),
       });
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const UserDetailsScreen()),
-      );
-    } else {
-      // Existing user
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User already exists, please login.")),
-      );
     }
+    // Always navigate to HomeScreen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Signup failed: ${e.toString()}")),
+      SnackBar(content: Text("Error: ${e.toString()}")),
     );
-  } finally {
-    setState(() => isLoading = false);
   }
 }
+
+
+
 
 
   @override
